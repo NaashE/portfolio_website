@@ -1,0 +1,90 @@
+---
+import { Image } from 'astro:assets';
+import selfie from '../../assets/images/selfie.jpg';
+---
+
+<section class="about" id="about">
+  <div class="container about-inner">
+    <Image
+      src={selfie}
+      alt="Eshaan Marocha"
+      class="about-photo"
+      widths={[320, 480, 640]}
+      sizes="(min-width: 780px) 380px, 320px"
+      loading="lazy"
+    />
+    <div class="about-copy">
+      <p class="eyebrow">About me</p>
+      <p class="about-text">
+        I'm currently working at the <span class="hl-sky">Intelligent Sensory
+        Microsystems Lab</span> at U of T where I'm helping design the digital
+        logic behind innovative low-cost high-speed camera systems. Outside of
+        the lab you can probably find me <span class="hl-gold">training for my
+        next triathlon</span> or trying to learn Mandarin before my upcoming
+        exchange program in Taiwan.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    padding-block: clamp(48px, 7vw, 96px);
+  }
+
+  .about-inner {
+    display: grid;
+    grid-template-columns: 0.72fr 1.28fr;
+    align-items: center;
+    gap: clamp(32px, 5vw, 72px);
+  }
+
+  .about-photo,
+  .about-copy {
+    min-width: 0;
+  }
+
+  .about-photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* shorter than the source portrait, cropped from the top, to better match
+       the height of the text beside it */
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: center 72%;
+    border-radius: var(--radius-card);
+    border: 1px solid color-mix(in srgb, var(--color-sky) 30%, transparent);
+  }
+
+  .about-copy {
+    max-width: none;
+  }
+
+  .about-text {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(20px, 2.4vw, 30px);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    margin: 20px 0 0;
+    text-wrap: pretty;
+  }
+
+  .hl-gold {
+    color: var(--color-gold);
+  }
+  .hl-sky {
+    color: var(--color-sky);
+  }
+
+  @media (max-width: 780px) {
+    .about-inner {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .about-photo {
+      max-width: 320px;
+    }
+  }
+</style>

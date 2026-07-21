@@ -1,0 +1,25 @@
+---
+import './contact.css';
+import InteractiveGrid from './InteractiveGrid';
+import ContactOverlay from './ContactOverlay';
+import { site } from '../../data/site';
+---
+
+<section class="cta" id="contact">
+  <InteractiveGrid
+    client:visible
+    withSineWave
+    waveCenter={0.62}
+    waveAlignSelector=".cta-button"
+    className="cta-canvas"
+  />
+  <div class="cta-content">
+    <p class="eyebrow">Open to internships</p>
+    <h2 class="cta-title">Let's get in touch</h2>
+    <!-- Static mailto link, progressively enhanced into the overlay flow -->
+    <a class="cta-button" href={`mailto:${site.email}`} data-open-contact>
+      Contact me
+    </a>
+  </div>
+  <ContactOverlay client:idle />
+</section>

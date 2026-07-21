@@ -1,0 +1,81 @@
+---
+import { Image } from 'astro:assets';
+import ASICViewer from '../../common/ASICViewer.astro';
+import ModelViewer from '../ModelViewer';
+import MediaFrame from './MediaFrame.astro';
+import type { Project } from '../../../data/projects';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const detail = project.detail;
+---
+
+<header class="pd-hero">
+  <div class="container">
+    <a class="pd-back" href="/#projects">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path
+          d="M11 7H3M6 3.5 2.5 7 6 10.5"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+      All projects
+    </a>
+
+    <h1 class="pd-hero-title">{project.name}</h1>
+    <p class="pd-hero-lead">{project.description}</p>
+
+    {
+      detail?.techStack && detail.techStack.length > 0 && (
+        <div class="pd-hero-meta">
+          {detail.techStack.map((tech) => <span class="pd-chip">{tech}</span>)}
+        </div>
+      )
+    }
+
+    {
+      detail?.recognition && detail.recognition.length > 0 && (
+        <div class="pd-recognition">
+          {detail.recognition.map((r) => (
+            <span class="pd-recognition-pill">{r}</span>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="pd-hero-media">
+      {
+        project.media === 'asic' && (
+          <ASICViewer loading="eager" label={`Interactive 3D view of ${project.name}`} />
+        )
+      }
+      {
+        project.media === 'obj' && project.modelUrl && (
+          <ModelViewer
+            client:visible
+            src={project.modelUrl}
+            label={`Interactive 3D model of ${project.name}`}
+          />
+        )
+      }
+      {
+        project.media === 'image' && project.image && (
+          <MediaFrame aspectRatio="16 / 10">
+            <Image
+              src={project.image}
+              alt={project.name}
+              widths={[600, 900, 1200]}
+              sizes="(min-width: 900px) 900px, 92vw"
+              loading="eager"
+            />
+          </MediaFrame>
+        )
+      }
+    </div>
+  </div>
+</header>

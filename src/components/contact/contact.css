@@ -1,0 +1,353 @@
+/* ---------------------------------------------------------------------------
+   Contact CTA (home) + full-screen multi-step overlay
+   ------------------------------------------------------------------------- */
+
+.cta {
+  position: relative;
+  width: 100%;
+  min-height: min(72vh, 640px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.cta-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.cta-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-inline: 20px;
+}
+
+.cta-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(34px, 5vw, 64px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin: 12px 0 clamp(36px, 6vw, 64px);
+  color: var(--color-white);
+}
+
+/* Still, extruded 3D button. Bevel is built from gold darkened with black
+   (color-mix), so it stays within the ASIC palette. Hover adds a blue glow. */
+.cta-button {
+  position: relative;
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(20px, 2.2vw, 26px);
+  letter-spacing: -0.01em;
+  color: #000;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-gold) 88%, white),
+    var(--color-gold)
+  );
+  padding: 18px 44px;
+  border-radius: 14px;
+  text-decoration: none;
+  transform: translateY(0);
+  box-shadow:
+    0 3px 0 color-mix(in srgb, var(--color-gold) 70%, black),
+    0 6px 0 color-mix(in srgb, var(--color-gold) 55%, black),
+    0 9px 0 color-mix(in srgb, var(--color-gold) 42%, black),
+    0 14px 22px rgba(0, 0, 0, 0.55);
+  transition:
+    transform 140ms ease,
+    box-shadow 220ms ease,
+    filter 220ms ease;
+}
+
+.cta-button:hover {
+  filter: brightness(1.04);
+  box-shadow:
+    0 3px 0 color-mix(in srgb, var(--color-gold) 70%, black),
+    0 6px 0 color-mix(in srgb, var(--color-gold) 55%, black),
+    0 9px 0 color-mix(in srgb, var(--color-gold) 42%, black),
+    0 14px 22px rgba(0, 0, 0, 0.55),
+    0 0 26px 4px rgba(41, 97, 212, 0.75),
+    0 0 60px 16px rgba(41, 97, 212, 0.45);
+}
+
+.cta-button:active {
+  transform: translateY(6px);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--color-gold) 70%, black),
+    0 2px 0 color-mix(in srgb, var(--color-gold) 55%, black),
+    0 3px 0 color-mix(in srgb, var(--color-gold) 42%, black),
+    0 6px 14px rgba(0, 0, 0, 0.55),
+    0 0 26px 4px rgba(41, 97, 212, 0.7);
+}
+
+/* ---------------------------------------------------------------------------
+   Overlay
+   ------------------------------------------------------------------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.overlay-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.overlay-close {
+  position: absolute;
+  top: clamp(16px, 3vw, 28px);
+  right: clamp(16px, 3vw, 28px);
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--color-sky) 35%, transparent);
+  background: color-mix(in srgb, var(--color-black) 55%, transparent);
+  color: var(--color-white);
+  cursor: pointer;
+  transition:
+    color var(--duration) ease,
+    border-color var(--duration) ease;
+}
+
+.overlay-close:hover {
+  color: var(--color-gold);
+  border-color: var(--color-gold);
+}
+
+.overlay-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-blue), var(--color-sky));
+  transition: width 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flow {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 620px;
+  padding: 32px clamp(20px, 5vw, 40px);
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.flow-step-index {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: var(--color-sky);
+  margin: 0 0 14px;
+}
+
+.flow-question {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-white);
+  margin: 0 0 24px;
+}
+
+.flow-input,
+.flow-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid color-mix(in srgb, var(--color-sky) 40%, transparent);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-size: clamp(18px, 2.4vw, 24px);
+  padding: 10px 2px;
+  box-sizing: border-box;
+  transition: border-color var(--duration) ease;
+}
+
+.flow-textarea {
+  resize: none;
+  min-height: 96px;
+  border: 1px solid color-mix(in srgb, var(--color-sky) 30%, transparent);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: clamp(16px, 2vw, 20px);
+}
+
+.flow-input::placeholder,
+.flow-textarea::placeholder {
+  color: color-mix(in srgb, var(--color-white) 35%, transparent);
+}
+
+.flow-input:focus,
+.flow-textarea:focus {
+  outline: none;
+  border-color: var(--color-gold);
+}
+
+.flow-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flow-option {
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--color-white);
+  background: color-mix(in srgb, var(--color-white) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-sky) 30%, transparent);
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition:
+    border-color var(--duration) ease,
+    background-color var(--duration) ease,
+    transform var(--duration) ease;
+}
+
+.flow-option:hover {
+  border-color: var(--color-gold);
+  background: color-mix(in srgb, var(--color-gold) 10%, transparent);
+  transform: translateX(4px);
+}
+
+.flow-error {
+  color: var(--color-gold);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin: 12px 0 0;
+  min-height: 16px;
+}
+
+.flow-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.flow-back {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: color-mix(in srgb, var(--color-white) 60%, transparent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 4px;
+  transition: color var(--duration) ease;
+}
+
+.flow-back:hover {
+  color: var(--color-white);
+}
+
+.flow-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: #000;
+  background: var(--color-gold);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 26px;
+  cursor: pointer;
+  transition:
+    opacity var(--duration) ease,
+    box-shadow var(--duration) ease;
+}
+
+.flow-next:hover {
+  box-shadow: 0 0 22px 2px rgba(41, 97, 212, 0.55);
+}
+
+.flow-next:disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
+}
+
+.flow-hint {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: color-mix(in srgb, var(--color-white) 45%, transparent);
+  margin-top: 14px;
+}
+
+/* Done screen */
+.flow-done {
+  text-align: center;
+}
+
+.flow-done-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(30px, 4.4vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-white);
+  margin: 0 0 18px;
+}
+
+.flow-done-text {
+  font-family: var(--font-body);
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--color-white) 80%, transparent);
+  margin: 0 auto 32px;
+  max-width: 42ch;
+}
+
+.flow-done-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: #000;
+  background: var(--color-gold);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 13px 28px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: box-shadow var(--duration) ease;
+}
+
+.flow-done-link:hover {
+  box-shadow: 0 0 24px 3px rgba(41, 97, 212, 0.6);
+}

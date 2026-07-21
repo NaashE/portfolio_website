@@ -1,0 +1,161 @@
+---
+import ASICViewer from '../common/ASICViewer.astro';
+---
+
+<section class="hero" id="top">
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <h1 class="hero-title">
+        <span class="hero-name">Hi, I'm <span class="hl-gold">Eshaan</span></span>
+        <span class="hero-rest"
+          >I'm an electrical engineering student focused on
+          <span class="hl-sky">digital electronics</span> and
+          <span class="hl-sky">integrated circuits</span>.</span
+        >
+      </h1>
+      <p class="hero-lead">
+        Here's an <span class="hl-gold">ASIC</span> I designed —
+        <a class="hero-lead-link" href="#projects">want to see what it does?</a>
+      </p>
+    </div>
+    <div class="hero-media">
+      <ASICViewer
+        loading="eager"
+        rotate
+        bare
+        label="Interactive 3D view of Eshaan's ASIC"
+      />
+      <button class="hero-media-caption" type="button" data-asic-zoom>
+        try zooming in
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  // "try zooming in" pill → dolly the ASIC viewer to a fixed close-up.
+  document.querySelectorAll('[data-asic-zoom]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const media = btn.closest('.hero-media');
+      const frame = media && media.querySelector('iframe');
+      try {
+        const win = (frame && frame.contentWindow) as any;
+        if (win && typeof win.emZoomClose === 'function') win.emZoomClose();
+      } catch (e) {
+        /* cross-frame access blocked — ignore */
+      }
+    });
+  });
+</script>
+
+<style>
+  .hero {
+    padding-top: clamp(48px, 8vw, 96px);
+    padding-bottom: var(--section-spacing);
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    align-items: center;
+    gap: clamp(28px, 4vw, 64px);
+  }
+
+  /* Let both columns shrink below their content's intrinsic width */
+  .hero-copy,
+  .hero-media {
+    min-width: 0;
+  }
+
+  .hero-title {
+    margin: 0;
+  }
+
+  /* The name — same typeface as the body text below (display), uppercase, gold, larger */
+  .hero-name {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(34px, 5.2vw, 84px);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    margin-bottom: 0.28em;
+    text-wrap: balance;
+  }
+
+  /* The rest — the technical sans, at the base display size */
+  .hero-rest {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(21px, 3.5vw, 50px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+  }
+
+  .hl-gold {
+    color: var(--color-gold);
+  }
+  .hl-sky {
+    color: var(--color-sky);
+  }
+
+  .hero-lead {
+    font-family: var(--font-mono);
+    font-size: clamp(14px, 1.3vw, 18px);
+    color: color-mix(in srgb, var(--color-white) 80%, transparent);
+    margin: 28px 0 0;
+  }
+
+  .hero-lead-link {
+    color: var(--color-gold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color var(--duration) ease;
+  }
+
+  .hero-lead-link:hover {
+    color: var(--color-sky);
+  }
+
+  .hero-media {
+    width: 100%;
+  }
+
+  /* Gold pill matching the Résumé button; also a button that zooms the ASIC */
+  .hero-media-caption {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    margin: 14px auto 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--color-black);
+    background-color: var(--color-gold);
+    padding: 7px 16px;
+    border: none;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: opacity var(--duration) ease;
+  }
+
+  .hero-media-caption:hover {
+    opacity: 0.85;
+  }
+
+  @media (max-width: 900px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .hero-media {
+      max-width: 520px;
+      margin-inline: auto;
+    }
+  }
+</style>

@@ -1,0 +1,55 @@
+---
+import '../../components/projects/detail/detail.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectDetailHero from '../../components/projects/detail/ProjectDetailHero.astro';
+import DetailSection from '../../components/projects/detail/DetailSection.astro';
+import InteractiveGrid from '../../components/contact/InteractiveGrid';
+import ContactOverlay from '../../components/contact/ContactOverlay';
+import { projects } from '../../data/projects';
+import { site } from '../../data/site';
+
+export function getStaticPaths() {
+  return projects.map((project, index) => ({
+    params: { slug: project.slug },
+    props: { project, index, total: projects.length },
+  }));
+}
+
+const { project, index } = Astro.props;
+const title = `${project.name} — ${site.name}`;
+const nextProject = projects[(index + 1) % projects.length];
+---
+
+<BaseLayout title={title} description={project.description}>
+  <ProjectDetailHero project={project} />
+
+  <div class="pd-sections container">
+    {
+      project.detail?.sections.map((section, i) => (
+        <DetailSection section={section} index={i} projectName={project.name} />
+      ))
+    }
+  </div>
+
+  <section class="pd-footer-cta">
+    <InteractiveGrid client:visible className="pd-footer-cta-canvas" />
+    <div class="container pd-footer-cta-inner">
+      <p class="eyebrow">Like what you see?</p>
+      <h2 class="pd-footer-cta-title">Let's talk about it.</h2>
+      <div class="pd-footer-cta-links">
+        <a
+          class="pd-footer-cta-btn"
+          href={`mailto:${site.email}`}
+          data-open-contact
+        >
+          Get in touch
+        </a>
+        <a class="pd-footer-cta-link" href={nextProject.href}>
+          Next: {nextProject.name} →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <ContactOverlay client:idle />
+</BaseLayout>

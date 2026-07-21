@@ -1,0 +1,97 @@
+---
+import { Image } from 'astro:assets';
+import { site } from '../../data/site';
+import logo from '../../assets/images/logo-em.png';
+
+// Absolute paths so these work correctly from project detail pages too
+// (not just when already on the home page).
+const links = [
+  { href: '/#about', label: 'About' },
+  { href: '/#projects', label: 'Projects' },
+  { href: '/#contact', label: 'Contact' },
+];
+---
+
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="/" aria-label={`${site.name} — home`}>
+      <Image src={logo} alt={`${site.name} logo`} class="brand-logo" densities={[1, 2]} loading="eager" />
+    </a>
+    <nav class="nav" aria-label="Primary">
+      {links.map((l) => <a class="nav-link" href={l.href}>{l.label}</a>)}
+      <a class="nav-resume" href={site.resumePath} target="_blank" rel="noopener">
+        Résumé
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+    background-color: color-mix(in srgb, var(--color-black) 70%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-sky) 14%, transparent);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .brand-logo {
+    display: block;
+    width: auto;
+    height: 30px;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 3vw, 32px);
+  }
+
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    color: var(--color-white);
+    text-decoration: none;
+    transition: color var(--duration) ease;
+  }
+
+  .nav-link:hover {
+    color: var(--color-sky);
+  }
+
+  .nav-resume {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--color-black);
+    background-color: var(--color-gold);
+    text-decoration: none;
+    padding: 7px 16px;
+    border-radius: var(--radius-pill);
+    transition: opacity var(--duration) ease;
+  }
+
+  .nav-resume:hover {
+    opacity: 0.85;
+  }
+
+  @media (max-width: 640px) {
+    .nav-link {
+      display: none;
+    }
+  }
+</style>

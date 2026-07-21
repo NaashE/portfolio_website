@@ -1,0 +1,81 @@
+---
+import { Image } from 'astro:assets';
+import ASICViewer from '../../common/ASICViewer.astro';
+import ModelViewer from '../ModelViewer';
+import MediaFrame from './MediaFrame.astro';
+import DetailVideoEmbed from './DetailVideoEmbed';
+import type { ProjectDetailSection } from '../../../data/projects';
+
+interface Props {
+  section: ProjectDetailSection;
+  index: number;
+  projectName: string;
+}
+
+const { section, index, projectName } = Astro.props;
+const mediaRight = index % 2 === 1;
+const media = section.media;
+---
+
+<section
+  class:list={[
+    'pd-section',
+    { 'pd-section--media-right': mediaRight, 'pd-section--no-media': !media },
+  ]}
+>
+  <div class="pd-section-text">
+    <h2 class="pd-section-heading">{section.heading}</h2>
+    {section.paragraphs?.map((p) => <p class="pd-section-para">{p}</p>)}
+    {
+      section.list && (
+        <ol class="pd-section-list">
+          {section.list.map((item) => <li>{item}</li>)}
+        </ol>
+      )
+    }
+  </div>
+
+  {
+    media && (
+      <div class="pd-section-media">
+        {media.kind === 'image' && media.image && (
+          <>
+            <MediaFrame aspectRatio="4 / 3" glow={false}>
+              <Image
+                src={media.image}
+                alt={media.alt ?? ''}
+                widths={[400, 600, 820]}
+                sizes="(min-width: 820px) 460px, 92vw"
+                loading="lazy"
+                style={`object-position: ${media.imagePosition ?? 'center'}`}
+              />
+            </MediaFrame>
+            {media.caption && <p class="pd-media-caption">{media.caption}</p>}
+          </>
+        )}
+
+        {media.kind === 'video' && media.videoId && (
+          <MediaFrame aspectRatio="16 / 9" glow={false}>
+            <DetailVideoEmbed
+              client:visible
+              videoId={media.videoId}
+              title={media.videoTitle ?? `${projectName} demo video`}
+            />
+          </MediaFrame>
+        )}
+
+        {media.kind === 'asic' && (
+          <ASICViewer loading="lazy" label={`Interactive 3D view of ${projectName}`} />
+        )}
+
+        {media.kind === 'obj' && media.modelUrl && (
+          <ModelViewer
+            client:visible
+            src={media.modelUrl}
+            label={`Interactive 3D model of ${projectName}`}
+          />
+        )}
+      </div>
+    )
+  }
+</section>

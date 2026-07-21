@@ -1,0 +1,84 @@
+---
+import { asicViewerUrl } from '../../data/site';
+
+interface Props {
+  /** eager for the hero (above the fold), lazy for the project row */
+  loading?: 'eager' | 'lazy';
+  /** accessible label describing which instance this is */
+  label?: string;
+  /** slow auto-rotation (hero) */
+  rotate?: boolean;
+  /** "bare" removes the framing box so the ASIC stands alone (hero) */
+  bare?: boolean;
+}
+
+const {
+  loading = 'lazy',
+  label = 'Interactive 3D view of the ASIC',
+  rotate = false,
+  bare = false,
+} = Astro.props;
+
+const src = asicViewerUrl(rotate);
+---
+
+<div class:list={['asic-viewer', { bare }]}>
+  <iframe
+    class="asic-frame"
+    src={src}
+    title={label}
+    loading={loading}
+    allow="accelerometer; gyroscope"
+    referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <span class="asic-hint" aria-hidden="true">drag to rotate · scroll to zoom</span>
+</div>
+
+<style>
+  .asic-viewer {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background-color: var(--color-black);
+    border: 1px solid color-mix(in srgb, var(--color-sky) 35%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-blue) 25%, transparent),
+      0 30px 80px -40px var(--color-blue);
+  }
+
+  /* Standalone: no box, no border/shadow — the black render blends into the page */
+  .asic-viewer.bare {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  .asic-frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .asic-hint {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+    background-color: color-mix(in srgb, var(--color-black) 70%, transparent);
+    padding: 4px 9px;
+    border-radius: var(--radius-pill);
+    pointer-events: none;
+  }
+
+  /* The hero variant is decorative/auto-rotating; keep it clean without the hint */
+  .asic-viewer.bare .asic-hint {
+    display: none;
+  }
+</style>

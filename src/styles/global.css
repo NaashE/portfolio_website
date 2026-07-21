@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+
+/* Self-hosted fonts */
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/inter';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+/* ---------------------------------------------------------------------------
+   Design tokens.
+   Every colour is sampled from the sky130A GDS layer palette used by the
+   Tiny Tapeout viewer that renders Eshaan's ASIC, plus black and white:
+     - gold  #ffcf8c  (li1 / Metal1 local-interconnect layer)
+     - blue  #2961d4  (met1 metal layer)  — "dark blue"
+     - sky   #a6bfe6  (met2 metal layer)  — "light blue"
+   Nothing outside black / white / these three is used anywhere in the site.
+   ------------------------------------------------------------------------- */
+@theme {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-gold: #ffcf8c;
+  --color-blue: #2961d4;
+  --color-sky: #a6bfe6;
+
+  --font-display: 'Space Grotesk Variable', sans-serif;
+  --font-body: 'Inter Variable', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-card: 16px;
+  --radius-pill: 100px;
+
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+}
+
+:root {
+  --page-max-width: 1300px;
+  --section-spacing: clamp(80px, 12vw, 160px);
+  --duration: 300ms;
+}
+
+html {
+  background-color: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+::selection {
+  background-color: var(--color-gold);
+  color: var(--color-black);
+}
+
+/* Shared layout container */
+.container {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+  padding-inline: clamp(20px, 4.5vw, 46px);
+}
+
+/* Mono eyebrow labels ("01 / PROJECTS" etc.) */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-sky);
+}
+
+/* Focus visibility */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

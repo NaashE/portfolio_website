@@ -1,0 +1,79 @@
+/* Boxed 3D model viewer — matches the ASIC viewer's framing in the projects grid */
+.model-viewer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background-color: var(--color-black);
+  border: 1px solid color-mix(in srgb, var(--color-sky) 35%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-blue) 25%, transparent),
+    0 30px 80px -40px var(--color-blue);
+  cursor: grab;
+  touch-action: none;
+}
+
+.model-viewer:active {
+  cursor: grabbing;
+}
+
+.model-viewer-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.model-viewer-status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-sky) 75%, transparent);
+  pointer-events: none;
+}
+
+/* Animated trailing dots: the "..." is fixed content revealed by a stepped
+   width animation, rather than animating `content` (broader browser support). */
+.loading-dots {
+  display: inline-block;
+  overflow: hidden;
+  width: 0;
+  margin-left: 2px;
+  vertical-align: bottom;
+  animation: loading-dots-reveal 1.2s steps(3, end) infinite;
+}
+
+.loading-dots::after {
+  content: '...';
+}
+
+@keyframes loading-dots-reveal {
+  from {
+    width: 0;
+  }
+  to {
+    width: 1.6em;
+  }
+}
+
+.model-viewer-hint {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  background-color: color-mix(in srgb, var(--color-black) 70%, transparent);
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+}

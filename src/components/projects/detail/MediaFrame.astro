@@ -1,0 +1,52 @@
+---
+// Bordered/shadowed box matching the ASIC viewer and MyoArm model viewer's
+// framing, so plain images and video embeds sit visually consistent with
+// them inside a case-study page.
+interface Props {
+  aspectRatio?: string;
+  /** Soft blue underglow beneath the box. On by default (matches the hero
+   * media); turned off for the smaller in-section images. */
+  glow?: boolean;
+}
+
+const { aspectRatio = '4 / 3', glow = true } = Astro.props;
+---
+
+<div
+  class="pd-media-frame"
+  class:list={{ 'pd-media-frame--no-glow': !glow }}
+  style={`aspect-ratio: ${aspectRatio}`}
+>
+  <slot />
+</div>
+
+<style>
+  .pd-media-frame {
+    position: relative;
+    width: 100%;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background-color: var(--color-black);
+    border: 1px solid color-mix(in srgb, var(--color-sky) 35%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-blue) 25%, transparent),
+      0 30px 80px -40px var(--color-blue);
+  }
+
+  .pd-media-frame--no-glow {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-blue) 25%, transparent);
+  }
+
+  /* Size whatever's dropped in (an <img>, or a video embed's root element) */
+  .pd-media-frame > :global(*) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pd-media-frame :global(img) {
+    display: block;
+    object-fit: cover;
+  }
+</style>
