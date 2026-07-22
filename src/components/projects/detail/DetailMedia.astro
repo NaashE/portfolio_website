@@ -1,0 +1,113 @@
+---
+import { Image } from 'astro:assets';
+import ASICViewer from '../../common/ASICViewer.astro';
+import ModelViewer from '../ModelViewer';
+import MediaFrame from './MediaFrame.astro';
+import DetailVideoEmbed from './DetailVideoEmbed';
+import type { ProjectDetailMedia } from '../../../data/projects';
+
+interface Props {
+  media: ProjectDetailMedia;
+  projectName: string;
+  widths?: number[];
+  sizes?: string;
+}
+
+const {
+  media,
+  projectName,
+  widths = [400, 600, 820],
+  sizes = '(min-width: 820px) 460px, 92vw',
+} = Astro.props;
+---
+
+{
+  media.kind === 'image' && media.image && (
+    <>
+      <MediaFrame aspectRatio={media.imageAspectRatio ?? '4 / 3'} glow={false}>
+        <Image
+          src={media.image}
+          alt={media.alt ?? ''}
+          widths={widths}
+          sizes={sizes}
+          loading="lazy"
+          style={`object-position: ${media.imagePosition ?? 'center'}`}
+        />
+      </MediaFrame>
+      {media.caption && <p class="pd-media-caption">{media.caption}</p>}
+    </>
+  )
+}
+
+{
+  media.kind === 'video' && media.videoId && (
+    <MediaFrame aspectRatio="16 / 9" glow={false}>
+      <DetailVideoEmbed
+        client:visible
+        videoId={media.videoId}
+        title={media.videoTitle ?? `${projectName} demo video`}
+      />
+    </MediaFrame>
+  )
+}
+
+{media.kind === 'asic' && <ASICViewer loading="lazy" label={`Interactive 3D view of ${projectName}`} />}
+
+{
+  media.kind === 'obj' && media.modelUrl && (
+    <ModelViewer
+      client:visible
+      src={media.modelUrl}
+      label={`Interactive 3D model of ${projectName}`}
+    />
+  )
+}
+
+{
+  media.kind === 'strip' && media.images && (
+    <>
+      <div class="pd-media-strip-frame">
+        <div class="pd-media-strip">
+          {media.images.map((img) => (
+            <Image
+              src={img}
+              alt={media.alt ?? ''}
+              widths={[1200, 1800, 2600]}
+              sizes="2600px"
+              loading="lazy"
+            />
+          ))}
+        </div>
+        <span class="pd-media-strip-hint">scroll to explore →</span>
+      </div>
+      {media.caption && <p class="pd-media-caption">{media.caption}</p>}
+    </>
+  )
+}
+
+{
+  media.kind === 'pair' && media.items && (
+    <div class="pd-media-pair">
+      <div class="pd-media-pair-frame">
+        <div class="pd-media-pair-row">
+          {media.items.map((item) => (
+            <div class="pd-media-pair-image" style={`aspect-ratio: ${item.aspectRatio ?? '4 / 3'}`}>
+              <Image
+                src={item.image}
+                alt={item.alt}
+                widths={[300, 450, 600]}
+                sizes="(min-width: 820px) 45vw, 92vw"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      {media.items.some((item) => item.caption) && (
+        <div class="pd-media-pair-captions">
+          {media.items.map((item) => item.caption && <p class="pd-media-caption">{item.caption}</p>)}
+        </div>
+      )}
+    </div>
+  )
+}

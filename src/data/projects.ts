@@ -1,5 +1,11 @@
 import type { ImageMetadata } from 'astro';
 
+import asicRayIllustration1 from '../assets/images/projects/asic-ray-illustration-1.png';
+import asicRayIllustration2 from '../assets/images/projects/asic-ray-illustration-2.png';
+import asicBlockDiagram1 from '../assets/images/projects/asic-block-diagram-1.png';
+import asicBlockDiagram2 from '../assets/images/projects/asic-block-diagram-2.png';
+import asicBlockDiagram3 from '../assets/images/projects/asic-block-diagram-3.png';
+
 import cupidImg from '../assets/images/projects/cupidglasses.jpg';
 import muxboxImg from '../assets/images/projects/muxbox.jpg';
 import rfImg from '../assets/images/projects/rfpoweramplifier.jpg';
@@ -22,18 +28,29 @@ import seismoAlarm from '../assets/images/projects/seismo-alarm-internals.png';
 import seismoDisplacement from '../assets/images/projects/seismo-displacement-map.jpg';
 
 import myoarmPhoto from '../assets/images/projects/myoarm-photo.jpg';
-import myoarmFusion from '../assets/images/projects/myoarm-fusion360.jpg';
+import myoarmSetup from '../assets/images/projects/myoarm-setup-illustration.png';
+import myoarmWiring from '../assets/images/projects/myoarm-internal-wiring.jpg';
 
 export interface ProjectDetailMedia {
-  kind: 'image' | 'video' | 'asic' | 'obj';
+  kind: 'image' | 'video' | 'asic' | 'obj' | 'strip' | 'pair';
   image?: ImageMetadata;
   alt?: string;
   caption?: string;
   /** CSS object-position for the cropped image, e.g. "center 80%" */
   imagePosition?: string;
+  /** CSS aspect-ratio matching the source image exactly, e.g. "1527 / 886",
+   * so object-fit: cover crops nothing. Defaults to the standard 4 / 3 box. */
+  imageAspectRatio?: string;
   videoId?: string;
   videoTitle?: string;
   modelUrl?: string;
+  /** kind: "strip" — several images stitched edge-to-edge into one seamless
+   * diagram (e.g. a multi-part block diagram). Sized via imageAspectRatio,
+   * computed from the images' true combined pixel dimensions. */
+  images?: ImageMetadata[];
+  /** kind: "pair" — two or more independently boxed images shown side by
+   * side, each with its own caption and true aspect ratio (so nothing crops). */
+  items?: { image: ImageMetadata; alt: string; caption?: string; aspectRatio?: string }[];
 }
 
 export interface ProjectDetailSection {
@@ -43,6 +60,18 @@ export interface ProjectDetailSection {
   /** Numbered/bulleted list, e.g. SeismoLink's roadmap */
   list?: string[];
   media?: ProjectDetailMedia;
+  /** A second text column shown side-by-side with this section's, both
+   * below a full-width feature image (see MUXBOX-style large media rows). */
+  secondaryColumn?: { heading: string; paragraphs: string[] };
+  /** Parallel sub-columns shown below this section's heading, with no
+   * "primary" text of their own (e.g. Power/Performance/Area). */
+  columns?: { heading: string; paragraphs: string[] }[];
+  /** Stack this section's media below its text (full width) instead of
+   * beside it — for large diagrams that need more than a half-width slot. */
+  mediaBelow?: boolean;
+  /** mediaBelow only — an extra paragraph rendered below the media, styled
+   * like a normal paragraph (not a small mono caption). */
+  paragraphAfterMedia?: string;
 }
 
 export interface ProjectDetail {
@@ -105,36 +134,95 @@ export const projects: Project[] = [
       ],
       sections: [
         {
-          heading: 'The pipeline',
+          heading: 'What is raytracing',
           paragraphs: [
-            'This is a hardware/software pipeline that turns 3D models into rendered images using ray tracing, where each pixel’s color is computed by finding the first surface its corresponding ray hits in the scene.',
-            'On the software side, 3D models are preprocessed into a compact 3D scene representation — solid vs. empty — and streamed into the ASIC through a dedicated scene-loading interface.',
+            'Making a 2D image from a 3D scene look realistic is difficult — simplified lighting models struggle to capture shadows, reflections, and see-through materials. Ray tracing solves this by trying to model how light actually behaves in the real world instead of relying on shortcuts that the simplified models use.',
+          ],
+          media: {
+            kind: 'pair',
+            items: [
+              {
+                image: asicRayIllustration1,
+                alt: 'Diagram of light rays radiating from a light source in every direction',
+                aspectRatio: '342 / 254',
+              },
+              {
+                image: asicRayIllustration2,
+                alt: 'Diagram of a ray cast from the observer to a surface, with a second shadow ray cast to the light source',
+                aspectRatio: '333 / 204',
+              },
+            ],
+          },
+          mediaBelow: true,
+          paragraphAfterMedia:
+            'In reality, light rays radiate out from a light source in every direction (see above, left), but almost none of them ever reach the camera — tracing all of them would be wasteful. Instead, rays are shot backwards from the observer into the scene (see above, right). When a ray hits a surface, a second ray is cast from the hit point to the light source to check whether the surface is in shadow. This is the basis of how raytracing works.',
+        },
+        {
+          heading: 'How the pipeline works',
+          paragraphs: [
+            'The renderer is split across three stages: software preprocessing, on chip computation, and finally software postprocessing/rendering.',
+            'During the software preprocessing stage the 3D model to be rendered is simplified into a grid of cubes with assigned colors - these are called voxels, the 3D version of a pixel. At the same time the camera position and orientation are used to generate a set of rays corresponding to every pixel 2D image which we are trying to render. Those rays are then packed into a stream and sent to the ASIC using a valid-ready handshake.',
+            'On the chip, a global control FSM steps each ray through the grid of voxels one cell at a time, checking whether it has gone out of bounds or hit an object in the scene, and reports back a hit/miss signal along with the hit position and which face of the voxel was struck.',
+            'Software then shades the result pixel by pixel using the corresponding rays. If the ray hit an object on the scene a hit’s face ID is converted into a surface normal, the voxel’s color is looked up, and Lambertian diffuse shading — based on the angle between the surface normal and the light source — produces the final pixel color. If the ray doesn’t hit an object then a background color is used.',
+          ],
+          media: {
+            kind: 'strip',
+            images: [asicBlockDiagram1, asicBlockDiagram2, asicBlockDiagram3],
+            alt: 'Block diagram of the scene and ray generation software, ray traversal hardware, and shading and image output software',
+          },
+          mediaBelow: true,
+        },
+        {
+          heading: 'PPA aware design',
+          paragraphs: [
+            'With every design decision power, performance, and area were the top considerations. These are some of the design decisions made for each of the three metrics.',
+          ],
+          columns: [
+            {
+              heading: 'Power',
+              paragraphs: [
+                'An early out-of-bounds calculation reduces the number of steps taken per ray.',
+              ],
+            },
+            {
+              heading: 'Performance',
+              paragraphs: [
+                'Pipeline staging shortens the critical path by splitting long computations into shorter chunks with registers in between.',
+                'Estimated throughput: ~1.8 million rays per second for a 32×32×32 scene.',
+              ],
+            },
+            {
+              heading: 'Area',
+              paragraphs: [
+                'Compact encodings are used where possible — a face ID is just 3 bits — and fixed-point arithmetic is used instead of floating point. All RAM is kept external to the ASIC.',
+              ],
+            },
           ],
         },
         {
-          heading: 'Chip architecture',
+          heading: 'Verification',
           paragraphs: [
-            'The ASIC accepts rays and repeatedly steps through the scene to find the first hit location, using pipelined compute stages. On a 32×32×32 scene, this reaches an estimated throughput of 1.8 million rays per second.',
+            'Verification was split across both the module and full chip level because bugs are far easier to catch in an isolated module than after the whole chip is stitched together but we still want to verify the design as a whole. Here is what we did to verify at each level.',
           ],
-          media: { kind: 'asic' },
+          columns: [
+            {
+              heading: 'Module level',
+              paragraphs: [
+                'Module-specific testbenches compute expected behavior from reference models, combining directed edge-case tests — e.g. a separate case for a ray passing through a voxel edge or corner — with large-scale random testing across 10,000 inputs, plus parameter scalability checks across different scene dimensions.',
+              ],
+            },
+            {
+              heading: 'Full chip level',
+              paragraphs: [
+                'Chip-level testing was built around the real Tiny Tapeout interface. A reference model predicts hit, miss, timeout, hit location, face ID, and steps taken, and automatically flags any mismatch — combining directed tests for high-risk corner cases, like a hit on the very first cell, with large randomized tests biased toward edge cases.',
+              ],
+            },
+          ],
         },
         {
-          heading: 'Rendering the image',
+          heading: 'Renders',
           paragraphs: [
-            'A software rendering application and GUI sends one ray per pixel to the chip, then converts the returned hits into final pixel colors — applying lighting calculations, shadows, and multiple light sources to produce a realistic image.',
-          ],
-        },
-        {
-          heading: 'Design tradeoffs',
-          paragraphs: [
-            'Every design decision was made with power, performance, and area (PPA) in mind: compact scene encodings, fixed-point arithmetic instead of floating point, and a maximum step limit that bounds the worst-case work per ray.',
-          ],
-        },
-        {
-          heading: 'Verification & fabrication',
-          paragraphs: [
-            'Correctness was verified at both the module and full-chip level using reference models that compute expected results, combining directed edge-case tests with large randomized regressions — 10,000+ inputs — using repeatable seeds.',
-            'Manufacturability was validated by synthesizing the design through Tiny Tapeout, producing a fabrication-ready netlist on the SKY130 process.',
+            'After designing the chip we decided to synthesize it onto an FPGA to see how well it could render images. Here’s a peak at what we were able to generate.',
           ],
         },
       ],
@@ -222,9 +310,13 @@ export const projects: Project[] = [
         {
           heading: 'What it does',
           paragraphs: [
-            'MyoArm is a 5-degree-of-freedom robotic arm that translates human muscle flexion into real-time motion. An electromyography (EMG) sensor detects the tiny electrical signals produced by muscle activation, which the system reads and converts into arm movement.',
+            'MyoArm is a 5-degree-of-freedom robotic arm that translates human muscle flexion into real-time motion. This is made possible by an electromyography (EMG) sensor, which detects the tiny electrical signals associated with muscle activation. That sensor output is read by an FPGA which then generates five control signals through its GPIO pins to drive the robotic arm’s motors and produce movement.',
           ],
-          media: { kind: 'video', videoId: 'RMHpapciQYU', videoTitle: 'MyoArm demo video' },
+          media: {
+            kind: 'image',
+            image: myoarmSetup,
+            alt: 'Illustration of the EMG sensor and arm setup',
+          },
         },
         {
           heading: 'Design & build',
@@ -233,15 +325,15 @@ export const projects: Project[] = [
           ],
           media: {
             kind: 'image',
-            image: myoarmFusion,
-            alt: 'Fusion 360 screenshot of the robotic arm design',
-            caption: 'Fusion 360 model of the arm',
+            image: myoarmWiring,
+            alt: 'Internal wiring of the robotic arm',
+            caption: 'Internal wiring of the arm',
           },
         },
         {
           heading: 'Control software',
           paragraphs: [
-            'Embedded C software runs on a DE1-SoC’s Nios V soft processor to detect muscle flexes, switch between control modes, and generate pulse-width modulation (PWM) signals that drive five servos in real time.',
+            'The FPGA was programmed to act as a NIOS V processor allowing us to write embedded C code to control the arm. This embedded C code was responsible for taking in the sensor output and sending out pulse width modulation (PWM) control signals to each of the 5 servo motors. This made it possible to control the 5 motors using different intensities and patterns of muscle flexion.',
           ],
           media: {
             kind: 'image',
@@ -249,6 +341,10 @@ export const projects: Project[] = [
             alt: 'The assembled MyoArm robotic arm',
             caption: 'The finished build',
           },
+        },
+        {
+          heading: 'Demo',
+          media: { kind: 'video', videoId: 'RMHpapciQYU', videoTitle: 'MyoArm demo video' },
         },
       ],
     },
@@ -268,21 +364,22 @@ export const projects: Project[] = [
         {
           heading: 'The goal',
           paragraphs: [
-            'This was a semester-long course project where our team built one subsystem of a larger software-defined radio — a modular high-frequency (HF) transceiver where many signal-processing tasks are handled in software, but real hardware still transmits and receives the signal.',
-            'My subsystem was the RF power amplifier and filter, the final output stage of the transmitter: it increases the radio’s transmit signal to a usable power level and filters out unwanted frequency components before the signal reaches the antenna. I translated the team’s interface/specification document into a schematic, a PCB, and a test plan.',
+            'This was a PCB design course project where our team built one subsystem of a larger software-defined radio — a modular high-frequency (HF) radio where many signal-processing tasks are handled in software, but real hardware still transmits and receives the signal.',
+            'My subsystem was the RF power amplifier and filter, the final output stage of the transmitter: it increases the radio’s transmit signal to a usable power level and filters out unwanted frequency components before the signal reaches the antenna.',
           ],
           media: {
             kind: 'image',
             image: rfBreadboard,
             alt: 'Breadboard prototype of the amplifier connected to an oscilloscope showing a sine wave',
             caption: 'Early breadboard testing of design',
+            imagePosition: 'center 80%',
           },
         },
         {
           heading: 'Requirements',
           paragraphs: [
             'The subsystem was designed around a set of measurable requirements: operate across the project’s 8–16 MHz radio range and deliver 1–10 W of output power into a standard 50 Ω load representing the antenna.',
-            'Signal quality mattered too — a switching amplifier can create unwanted harmonic content, so the design needed a filter to keep total harmonic distortion below 10%. The subsystem also needed transmit-enable control, turning the amplifier on only while the radio was transmitting.',
+            'Signal quality mattered too — a switching amplifier can create unwanted harmonic content, so the design needed a filter to keep total harmonic distortion below 10%.',
           ],
           media: {
             kind: 'image',
@@ -294,22 +391,22 @@ export const projects: Project[] = [
         {
           heading: 'Design and PCB implementation',
           paragraphs: [
-            'I used LTspice to simulate and iterate on the schematic before moving into the physical PCB design in Altium. The transmit signal first enters a comparator that converts the incoming waveform into a clean switching signal, which drives a gate driver providing the fast, high-current switching the power transistor needs. The gate driver’s enable pin is tied to the inverted, active-low transmit-enable signal, so the amplifier only turns on while the radio is transmitting.',
-            'From there the signal passes into the Class-D amplifier stage — the main power stage, using high-speed switching to raise the signal’s output power — and then through a 5-pole LC filter that preserves the transmit frequency while reducing the harmonics the switching stage produces.',
+            'I used LTspice to simulate and iterate on the schematic before moving into the physical PCB design in Altium. In the final design the transmit signal first enters a comparator that converts the incoming waveform into a clean switching signal, which drives a gate driver providing high-current switching the power amplification stage needs. From there the signal passes into the Class-D power amplifier stage which raises the signal’s output power. Finally, the signal is sent through a 5-pole LC filter that preserves the transmit frequency while reducing the harmonics the switching stage produces.',
           ],
           media: {
             kind: 'image',
             image: rfLabelledPcb,
             alt: 'Annotated Altium screenshot of the PCB layout with labelled functional blocks',
             caption: 'Annotated screenshot of the Altium PCB',
+            imageAspectRatio: '1527 / 886',
           },
-        },
-        {
-          heading: 'Results',
-          paragraphs: [
-            'I validated the assembled PCB with Python-based test automation, testing it against every subsystem requirement — output power, total harmonic distortion, and transmit-enable control — and it passed each one.',
-            'The PCB was also selected for integration with the other subsystems to build the full software-defined radio, and that integration was successful, with the amplifier and filter operating as the radio’s final transmit-output stage.',
-          ],
+          secondaryColumn: {
+            heading: 'Results',
+            paragraphs: [
+              'I validated the assembled PCB with Python-based test automation, testing it against every subsystem requirement — it passed each one.',
+              'The PCB was also selected for integration with the other subsystems to build the full software-defined radio. The integration was successful and our radio was able to send clear signals which were picked up by receiving radios.',
+            ],
+          },
         },
       ],
     },
@@ -329,7 +426,7 @@ export const projects: Project[] = [
         {
           heading: 'What it does',
           paragraphs: [
-            'MUXBOX is a standalone FPGA drum pad and loop recorder: twelve sound pads trigger ROM-backed drum samples that are mixed in real time and sent to the on-board Audio CODEC. A 120 BPM metronome keeps time, a rotary encoder controls master volume (shown on the 7-segment/HEX display), and you can record up to 16 seconds of a pattern, save it, and play it back on loop.',
+            'MUXBOX is a standalone FPGA drum pad and loop recorder: twelve sound pads trigger ROM-backed drum samples that are mixed in real time and sent to the on-board Audio CODEC. A 120 BPM metronome keeps time, a rotary encoder controls master volume, and you can record up to 16 seconds of a pattern, save it, and play it back on loop.',
           ],
           media: {
             kind: 'image',
@@ -342,7 +439,7 @@ export const projects: Project[] = [
         {
           heading: 'Hardware',
           paragraphs: [
-            'We designed and built the entire physical system ourselves. I modeled the enclosure and the twelve soft pads in Fusion 360, 3D-printed the shell in PLA and the button caps in TPU, and hand-wired the sound pads and control buttons to the DE1-SoC via the GPIO header. The breadboard section routes pad/button signals, and the FPGA handles debouncing/edge-detection and audio generation/mixing before driving speakers through the board’s Audio CODEC.',
+            'We designed and built the entire physical system ourselves. I modeled the enclosure and the twelve soft pads in Fusion 360, 3D-printed the shell in PLA and the button caps in TPU, and hand-wired the sound pads and control buttons to the FPGA via the GPIO header. The breadboard section routes pad/button signals, and the FPGA handles debouncing/edge-detection and audio generation/mixing before driving speakers through the board’s Audio CODEC.',
           ],
           media: {
             kind: 'image',

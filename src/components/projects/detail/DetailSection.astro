@@ -1,9 +1,5 @@
 ---
-import { Image } from 'astro:assets';
-import ASICViewer from '../../common/ASICViewer.astro';
-import ModelViewer from '../ModelViewer';
-import MediaFrame from './MediaFrame.astro';
-import DetailVideoEmbed from './DetailVideoEmbed';
+import DetailMedia from './DetailMedia.astro';
 import type { ProjectDetailSection } from '../../../data/projects';
 
 interface Props {
@@ -15,67 +11,91 @@ interface Props {
 const { section, index, projectName } = Astro.props;
 const mediaRight = index % 2 === 1;
 const media = section.media;
+const isVideoFeature = media?.kind === 'video' && !section.paragraphs?.length;
+const isSplitBelow = !!section.secondaryColumn;
+const isColumnsOnly = !!section.columns && !media;
+const isMediaBelow = !!section.mediaBelow && !!media && !isVideoFeature;
 ---
 
 <section
   class:list={[
     'pd-section',
-    { 'pd-section--media-right': mediaRight, 'pd-section--no-media': !media },
+    {
+      'pd-section--media-right': mediaRight,
+      'pd-section--no-media': !media,
+      'pd-section--video-feature': isVideoFeature,
+      'pd-section--split-below': isSplitBelow,
+      'pd-section--columns-only': isColumnsOnly,
+      'pd-section--media-below': isMediaBelow,
+    },
   ]}
 >
-  <div class="pd-section-text">
-    <h2 class="pd-section-heading">{section.heading}</h2>
-    {section.paragraphs?.map((p) => <p class="pd-section-para">{p}</p>)}
-    {
-      section.list && (
-        <ol class="pd-section-list">
-          {section.list.map((item) => <li>{item}</li>)}
-        </ol>
-      )
-    }
-  </div>
-
   {
-    media && (
-      <div class="pd-section-media">
-        {media.kind === 'image' && media.image && (
-          <>
-            <MediaFrame aspectRatio="4 / 3" glow={false}>
-              <Image
-                src={media.image}
-                alt={media.alt ?? ''}
-                widths={[400, 600, 820]}
-                sizes="(min-width: 820px) 460px, 92vw"
-                loading="lazy"
-                style={`object-position: ${media.imagePosition ?? 'center'}`}
-              />
-            </MediaFrame>
-            {media.caption && <p class="pd-media-caption">{media.caption}</p>}
-          </>
-        )}
+    isColumnsOnly ? (
+      <>
+        <div class="pd-section-text pd-section-text--full">
+          <h2 class="pd-section-heading">{section.heading}</h2>
+          {section.paragraphs?.map((p) => <p class="pd-section-para">{p}</p>)}
+        </div>
+        <div class="pd-section-columns pd-section-columns--full">
+          {section.columns?.map((col) => (
+            <div class="pd-section-text">
+              <h3 class="pd-section-subheading">{col.heading}</h3>
+              {col.paragraphs.map((p) => <p class="pd-section-para">{p}</p>)}
+            </div>
+          ))}
+        </div>
+      </>
+    ) : isSplitBelow ? (
+      <>
+        <div class="pd-section-media">
+          {media && <DetailMedia media={media} projectName={projectName} widths={[600, 900, 1200]} sizes="92vw" />}
+        </div>
 
-        {media.kind === 'video' && media.videoId && (
-          <MediaFrame aspectRatio="16 / 9" glow={false}>
-            <DetailVideoEmbed
-              client:visible
-              videoId={media.videoId}
-              title={media.videoTitle ?? `${projectName} demo video`}
-            />
-          </MediaFrame>
-        )}
+        <div class="pd-section-columns">
+          <div class="pd-section-text">
+            <h2 class="pd-section-heading">{section.heading}</h2>
+            {section.paragraphs?.map((p) => <p class="pd-section-para">{p}</p>)}
+          </div>
+          <div class="pd-section-text">
+            <h2 class="pd-section-heading">{section.secondaryColumn?.heading}</h2>
+            {section.secondaryColumn?.paragraphs.map((p) => <p class="pd-section-para">{p}</p>)}
+          </div>
+        </div>
+      </>
+    ) : isMediaBelow ? (
+      <>
+        <div class="pd-section-text">
+          <h2 class="pd-section-heading">{section.heading}</h2>
+          {section.paragraphs?.map((p) => <p class="pd-section-para">{p}</p>)}
+        </div>
 
-        {media.kind === 'asic' && (
-          <ASICViewer loading="lazy" label={`Interactive 3D view of ${projectName}`} />
-        )}
+        <div class="pd-section-media">
+          {media && <DetailMedia media={media} projectName={projectName} widths={[600, 900, 1200]} sizes="92vw" />}
+        </div>
 
-        {media.kind === 'obj' && media.modelUrl && (
-          <ModelViewer
-            client:visible
-            src={media.modelUrl}
-            label={`Interactive 3D model of ${projectName}`}
-          />
+        {section.paragraphAfterMedia && (
+          <p class="pd-section-para pd-section-para--after-media">{section.paragraphAfterMedia}</p>
         )}
-      </div>
+      </>
+    ) : (
+      <>
+        <div class="pd-section-text">
+          <h2 class="pd-section-heading">{section.heading}</h2>
+          {section.paragraphs?.map((p) => <p class="pd-section-para">{p}</p>)}
+          {section.list && (
+            <ol class="pd-section-list">
+              {section.list.map((item) => <li>{item}</li>)}
+            </ol>
+          )}
+        </div>
+
+        {media && (
+          <div class="pd-section-media">
+            <DetailMedia media={media} projectName={projectName} />
+          </div>
+        )}
+      </>
     )
   }
 </section>
