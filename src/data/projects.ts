@@ -259,7 +259,7 @@ export const projects: Project[] = [
     description:
       'A PCB designed for transmitting radio frequency signals — includes a Class-D power amplifier and 5-pole LC filter.',
     media: 'image',
-    image: rfImg,
+    image: rfPcbTesting,
     href: '/projects/rfpoweramplifier',
     detail: {
       timeframe: 'Jan – Apr 2026',
@@ -286,7 +286,7 @@ export const projects: Project[] = [
           ],
           media: {
             kind: 'image',
-            image: rfPcbTesting,
+            image: rfImg,
             alt: 'Hand probing the amplifier PCB with an oscilloscope probe during testing',
             caption: 'PCB being tested against the requirements',
           },
@@ -318,7 +318,7 @@ export const projects: Project[] = [
     slug: 'muxbox',
     name: 'MUXBOX',
     description:
-      'A standalone FPGA drum pad and 16-second loop recorder that triggers and mixes ROM-backed samples in real time on a DE1-SoC.',
+      'A standalone drum pad built around an FPGA - includes 16 unique programmable sounds with loop recording and playback functionality.',
     media: 'image',
     image: muxboxImg,
     href: '/projects/muxbox',
@@ -376,14 +376,14 @@ export const projects: Project[] = [
     name: 'SeismoLink',
     description:
       'A solar-powered, community-deployable earthquake detection and alarm unit that flags seismic activity from satellite elevation data.',
-    result: '3rd Place Overall — Hack Without Borders 2025.',
+    result: 'Winner at Hack Without Borders 2025.',
     media: 'image',
     image: seismoImg,
     href: '/projects/seismolink',
     detail: {
       timeframe: 'Mar 2025 — Hack Without Borders',
-      techStack: ['Satellite modem', 'GeoTIFF elevation data', 'Solar power'],
-      recognition: ['3rd Place Overall — Hack Without Borders 2025 (Engineers Without Borders)'],
+      techStack: ['Python', 'SketchUp'],
+      recognition: ['Winner at Hack Without Borders 2025 (Engineers Without Borders)'],
       sections: [
         {
           heading: 'The problem',
@@ -420,14 +420,6 @@ export const projects: Project[] = [
             alt: 'Color-coded GeoTIFF ground-displacement map',
             caption: 'GeoTIFF displacement map',
           },
-        },
-        {
-          heading: "What's next",
-          list: [
-            'Build a physical prototype and field test',
-            'Swap parts for lower cost equivalents; target <$300 materials cost per unit',
-            'Design a multilingual app to trigger tests, surface analytics, and show a live status',
-          ],
         },
       ],
     },

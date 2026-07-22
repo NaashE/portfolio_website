@@ -4,9 +4,11 @@ import Hero from '../components/home/Hero.astro';
 import About from '../components/home/About.astro';
 import ProjectsSection from '../components/projects/ProjectsSection.astro';
 import ContactSection from '../components/contact/ContactSection.astro';
+import LoadingScreen from '../components/home/LoadingScreen.astro';
 ---
 
 <BaseLayout>
+  <LoadingScreen />
   <Hero />
   <About />
   <ProjectsSection />

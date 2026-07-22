@@ -55,11 +55,13 @@
 }
 
 @keyframes loading-dots-reveal {
+  /* 3ch = width of 3 monospace characters — exact, unlike an em guess that
+     can under-measure and clip the third dot depending on font metrics. */
   from {
     width: 0;
   }
   to {
-    width: 1.6em;
+    width: calc(3ch + 0.3em);
   }
 }
 

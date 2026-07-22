@@ -10,6 +10,11 @@ interface Props {
   rotate?: boolean;
   /** "bare" removes the framing box so the ASIC stands alone (hero) */
   bare?: boolean;
+  /**
+   * Static tilted resting angle, no motion — on by default for every boxed
+   * instance, ignored when `rotate` is set (rotate already includes the tilt).
+   */
+  tilt?: boolean;
 }
 
 const {
@@ -17,9 +22,10 @@ const {
   label = 'Interactive 3D view of the ASIC',
   rotate = false,
   bare = false,
+  tilt = true,
 } = Astro.props;
 
-const src = asicViewerUrl(rotate);
+const src = asicViewerUrl(rotate, tilt);
 ---
 
 <div class:list={['asic-viewer', { bare }]}>

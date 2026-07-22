@@ -31,18 +31,21 @@ export const contactReasons = [
 
 /**
  * Self-hosted Tiny Tapeout GDS viewer (Apache-2.0), stripped of its title/help
- * text and controls panel and given a `rotate` flag. Lives in
+ * text and controls panel and given `rotate`/`tilt` flags. Lives in
  * public/asic-viewer/. The .oas model is fetched from GitHub Pages (CORS-enabled).
- * Drag to rotate, scroll to zoom. Pass rotate=true for slow auto-rotation.
+ * Drag to rotate, scroll to zoom.
+ *   rotate=1 → tilted resting angle + slow auto-rocking (the standalone hero)
+ *   tilt=1   → the same tilted resting angle, but static (the boxed instances)
  */
 const asicModel =
   'https://naashe.github.io/ttsky-ASIC//tinytapeout.oas';
 
-export function asicViewerUrl(rotate = false): string {
+export function asicViewerUrl(rotate = false, tilt = false): string {
   const params = new URLSearchParams({
     pdk: 'sky130A',
     model: asicModel,
   });
   if (rotate) params.set('rotate', '1');
+  else if (tilt) params.set('tilt', '1');
   return `/asic-viewer/index.html?${params.toString()}`;
 }

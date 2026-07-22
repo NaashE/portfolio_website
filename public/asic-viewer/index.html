@@ -63,8 +63,12 @@
         }
 
         @keyframes loadingDots {
+            /* 3ch = width of 3 monospace characters (the "ch" unit is defined
+               as one character's advance width, exact for monospace fonts —
+               unlike an em guess, this can't under-measure and clip a dot).
+               +0.3em covers the letter-spacing gaps between/after them. */
             from { width: 0; }
-            to { width: 1.6em; }
+            to { width: calc(3ch + 0.3em); }
         }
 
         #dropZone {
@@ -125,7 +129,7 @@
             .lil-gui { display: none !important; }
         #crossSection { display: none !important; }
     </style>
-  <script type="module" crossorigin src="./assets/index.0cb273f7.js"></script>
+  <script type="module" crossorigin src="./assets/index.7036b411.js"></script>
 </head>
 
 <body>

@@ -50,7 +50,7 @@
 
 .pd-hero {
   padding-top: clamp(32px, 5vw, 56px);
-  padding-bottom: var(--section-spacing);
+  padding-bottom: clamp(24px, 3vw, 40px);
 }
 
 .pd-back {
@@ -115,9 +115,9 @@
   font-family: var(--font-mono);
   font-size: 13px;
   letter-spacing: 0.02em;
-  color: color-mix(in srgb, var(--color-white) 85%, transparent);
+  color: var(--color-black);
+  background-color: var(--color-sky);
   padding: 6px 12px;
-  border: 1px solid color-mix(in srgb, var(--color-white) 18%, transparent);
   border-radius: var(--radius-pill);
 }
 
@@ -136,11 +136,6 @@
   background-color: var(--color-gold);
   padding: 7px 14px;
   border-radius: var(--radius-pill);
-}
-
-.pd-hero-media {
-  width: 100%;
-  margin-top: clamp(36px, 6vw, 64px);
 }
 
 /* -----------------------------------------------------------------------

@@ -1,0 +1,114 @@
+---
+import InteractiveGrid from '../contact/InteractiveGrid';
+import './loading-screen.css';
+
+const PHRASES = [
+  'breadboarding...',
+  'routing nets...',
+  'soldering components...',
+  'validating design...',
+  'placing components...',
+  'synthesizing netlist...',
+  'checking signal integrity...',
+  'verifying pinout...',
+];
+---
+
+<!--
+  Static (server-rendered) mask over the hero ASIC while its model loads.
+  Rendered directly in the HTML — not gated behind any client-side JS/React
+  state — so it's part of the very first paint with zero flash of the
+  unmasked, still-loading ASIC underneath. Shows on every load (hard reload
+  and, via astro:page-load, every soft view-transition back to the home page)
+  since the ASIC iframe genuinely reloads from scratch each time.
+-->
+<div class="loading-screen" id="loading-screen">
+  <InteractiveGrid
+    client:load
+    withSineWave
+    waveCenter={0.62}
+    className="loading-screen-canvas"
+  />
+  <p class="loading-screen-text" id="loading-screen-text">{PHRASES[0]}</p>
+</div>
+
+<noscript>
+  <style>
+    .loading-screen {
+      display: none;
+    }
+  </style>
+</noscript>
+
+<script define:vars={{ PHRASES }}>
+  function initLoadingScreen() {
+    const overlay = document.getElementById('loading-screen');
+    const textEl = document.getElementById('loading-screen-text');
+    if (!overlay || !textEl) return;
+    // A previous instance (e.g. from a view-transition swap) may still be
+    // fading out; make sure this fresh one starts fully visible.
+    overlay.classList.remove('loading-screen--hidden');
+    overlay.style.display = '';
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function pickNext(current) {
+      if (PHRASES.length <= 1) return PHRASES[0];
+      let next = current;
+      while (next === current) {
+        next = PHRASES[Math.floor(Math.random() * PHRASES.length)];
+      }
+      return next;
+    }
+
+    let wordTimer;
+    if (!reduce) {
+      wordTimer = setInterval(() => {
+        textEl.textContent = pickNext(textEl.textContent || PHRASES[0]);
+      }, 950);
+    }
+
+    function isReady() {
+      try {
+        const frame = document.querySelector('#hero-asic-mount iframe');
+        const doc = frame && frame.contentDocument;
+        const status = doc && doc.getElementById('loadingStatus');
+        return !!status && status.hidden === true;
+      } catch {
+        return false;
+      }
+    }
+
+    const MIN_DISPLAY_MS = 500;
+    const MAX_WAIT_MS = 7000;
+    const shownAt = performance.now();
+    let settled = false;
+
+    function reveal() {
+      if (settled) return;
+      settled = true;
+      if (wordTimer) clearInterval(wordTimer);
+      clearInterval(pollTimer);
+      clearTimeout(maxWaitTimer);
+      const elapsed = performance.now() - shownAt;
+      const wait = Math.max(0, MIN_DISPLAY_MS - elapsed);
+      setTimeout(() => {
+        overlay.classList.add('loading-screen--hidden');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+        }, 450);
+      }, wait);
+    }
+
+    const pollTimer = setInterval(() => {
+      if (isReady()) reveal();
+    }, 150);
+
+    const maxWaitTimer = setTimeout(reveal, MAX_WAIT_MS);
+  }
+
+  // astro:page-load fires after the initial load AND after every subsequent
+  // view-transition navigation, so this re-runs correctly whether the visitor
+  // hard-reloads or soft-navigates back to "/" from a project page.
+  document.addEventListener('astro:page-load', initLoadingScreen);
+</script>

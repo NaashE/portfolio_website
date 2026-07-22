@@ -19,12 +19,14 @@ import ASICViewer from '../common/ASICViewer.astro';
       </p>
     </div>
     <div class="hero-media">
-      <ASICViewer
-        loading="eager"
-        rotate
-        bare
-        label="Interactive 3D view of Eshaan's ASIC"
-      />
+      <div id="hero-asic-mount">
+        <ASICViewer
+          loading="eager"
+          rotate
+          bare
+          label="Interactive 3D view of Eshaan's ASIC"
+        />
+      </div>
       <button class="hero-media-caption" type="button" data-asic-zoom>
         try zooming in
       </button>

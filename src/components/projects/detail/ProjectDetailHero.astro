@@ -1,8 +1,4 @@
 ---
-import { Image } from 'astro:assets';
-import ASICViewer from '../../common/ASICViewer.astro';
-import ModelViewer from '../ModelViewer';
-import MediaFrame from './MediaFrame.astro';
 import type { Project } from '../../../data/projects';
 
 interface Props {
@@ -27,8 +23,12 @@ const detail = project.detail;
       All projects
     </a>
 
-    <h1 class="pd-hero-title">{project.name}</h1>
-    <p class="pd-hero-lead">{project.description}</p>
+    <h1 class="pd-hero-title" transition:name={`project-title-${project.slug}`}>
+      {project.name}
+    </h1>
+    <p class="pd-hero-lead" transition:name={`project-desc-${project.slug}`}>
+      {project.description}
+    </p>
 
     {
       detail?.techStack && detail.techStack.length > 0 && (
@@ -47,35 +47,5 @@ const detail = project.detail;
         </div>
       )
     }
-
-    <div class="pd-hero-media">
-      {
-        project.media === 'asic' && (
-          <ASICViewer loading="eager" label={`Interactive 3D view of ${project.name}`} />
-        )
-      }
-      {
-        project.media === 'obj' && project.modelUrl && (
-          <ModelViewer
-            client:visible
-            src={project.modelUrl}
-            label={`Interactive 3D model of ${project.name}`}
-          />
-        )
-      }
-      {
-        project.media === 'image' && project.image && (
-          <MediaFrame aspectRatio="16 / 10">
-            <Image
-              src={project.image}
-              alt={project.name}
-              widths={[600, 900, 1200]}
-              sizes="(min-width: 900px) 900px, 92vw"
-              loading="eager"
-            />
-          </MediaFrame>
-        )
-      }
-    </div>
   </div>
 </header>

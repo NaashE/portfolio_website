@@ -19,15 +19,20 @@ const number = String(index + 1).padStart(2, '0');
   <div class="row-media">
     {
       project.media === 'asic' ? (
-        <ASICViewer loading="lazy" label={`Interactive 3D view of ${project.name}`} />
+        <ASICViewer
+          loading="lazy"
+          label={`Interactive 3D view of ${project.name}`}
+          transition:name={`project-media-${project.slug}`}
+        />
       ) : project.media === 'obj' && project.modelUrl ? (
         <ModelViewer
           client:visible
           src={project.modelUrl}
           label={`Interactive 3D model of ${project.name}`}
+          transition:name={`project-media-${project.slug}`}
         />
       ) : project.media === 'image' && project.image ? (
-        <div class="project-image-box">
+        <div class="project-image-box" transition:name={`project-media-${project.slug}`}>
           <Image
             src={project.image}
             alt={project.name}
@@ -41,7 +46,12 @@ const number = String(index + 1).padStart(2, '0');
           />
         </div>
       ) : (
-        <div class="model-placeholder" role="img" aria-label={`3D model of ${project.name} (coming soon)`}>
+        <div
+          class="model-placeholder"
+          role="img"
+          aria-label={`3D model of ${project.name} (coming soon)`}
+          transition:name={`project-media-${project.slug}`}
+        >
           <span class="model-label">3D model</span>
           <span class="model-sub">coming soon</span>
         </div>
@@ -51,8 +61,12 @@ const number = String(index + 1).padStart(2, '0');
 
   <div class="row-text">
     <span class="row-number eyebrow">{number}</span>
-    <h3 class="row-name">{project.name}</h3>
-    <p class="row-desc">{project.description}</p>
+    <h3 class="row-name" transition:name={`project-title-${project.slug}`}>
+      {project.name}
+    </h3>
+    <p class="row-desc" transition:name={`project-desc-${project.slug}`}>
+      {project.description}
+    </p>
     {project.result && <p class="row-result">{project.result}</p>}
     <a class="row-more" href={project.href}>
       See details
