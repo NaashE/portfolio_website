@@ -111,3 +111,24 @@ const {
     </div>
   )
 }
+
+{
+  media.kind === 'grid' && media.items && (
+    <div class="pd-media-grid">
+      {media.items.map((item) => (
+        <div class="pd-media-grid-item">
+          <MediaFrame aspectRatio="1 / 1" glow={false}>
+            <Image
+              src={item.image}
+              alt={item.alt}
+              widths={[400, 600, 820]}
+              sizes="(min-width: 820px) 46vw, 92vw"
+              loading="lazy"
+            />
+          </MediaFrame>
+          {item.caption && <p class="pd-media-caption">{item.caption}</p>}
+        </div>
+      ))}
+    </div>
+  )
+}

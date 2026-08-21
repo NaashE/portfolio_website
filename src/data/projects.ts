@@ -5,6 +5,10 @@ import asicRayIllustration2 from '../assets/images/projects/asic-ray-illustratio
 import asicBlockDiagram1 from '../assets/images/projects/asic-block-diagram-1.png';
 import asicBlockDiagram2 from '../assets/images/projects/asic-block-diagram-2.png';
 import asicBlockDiagram3 from '../assets/images/projects/asic-block-diagram-3.png';
+import asicRenderGoodShadows from '../assets/images/projects/asic-render-good-shadows.png';
+import asicRenderMirroredWalls from '../assets/images/projects/asic-render-mirrored-walls.png';
+import asicRenderMirroredBox from '../assets/images/projects/asic-render-mirrored-box.png';
+import asicRenderMirrorSkewedAngle from '../assets/images/projects/asic-render-mirror-skewed-angle.png';
 
 import cupidImg from '../assets/images/projects/cupidglasses.jpg';
 import muxboxImg from '../assets/images/projects/muxbox.jpg';
@@ -32,7 +36,7 @@ import myoarmSetup from '../assets/images/projects/myoarm-setup-illustration.png
 import myoarmWiring from '../assets/images/projects/myoarm-internal-wiring.jpg';
 
 export interface ProjectDetailMedia {
-  kind: 'image' | 'video' | 'asic' | 'obj' | 'strip' | 'pair';
+  kind: 'image' | 'video' | 'asic' | 'obj' | 'strip' | 'pair' | 'grid';
   image?: ImageMetadata;
   alt?: string;
   caption?: string;
@@ -49,7 +53,9 @@ export interface ProjectDetailMedia {
    * computed from the images' true combined pixel dimensions. */
   images?: ImageMetadata[];
   /** kind: "pair" — two or more independently boxed images shown side by
-   * side, each with its own caption and true aspect ratio (so nothing crops). */
+   * side, each with its own caption and true aspect ratio (so nothing crops).
+   * kind: "grid" — exactly four images in a 2x2 grid, DOM order filling
+   * top-left, top-right, bottom-left, bottom-right. */
   items?: { image: ImageMetadata; alt: string; caption?: string; aspectRatio?: string }[];
 }
 
@@ -224,6 +230,32 @@ export const projects: Project[] = [
           paragraphs: [
             'After designing the chip we decided to synthesize it onto an FPGA to see how well it could render images. Here’s a peak at what we were able to generate.',
           ],
+          media: {
+            kind: 'grid',
+            items: [
+              {
+                image: asicRenderGoodShadows,
+                alt: 'Rendered scene with two spheres casting soft shadows',
+                caption: '2 spheres enclosed in a box',
+              },
+              {
+                image: asicRenderMirroredWalls,
+                alt: 'Rendered scene with mirrored side walls',
+                caption: '2 spheres enclosed in a box with the left and right walls acting as mirrors',
+              },
+              {
+                image: asicRenderMirroredBox,
+                alt: 'Rendered scene inside a fully mirrored box',
+                caption: '2 spheres enclosed in a fully mirror surfaced box',
+              },
+              {
+                image: asicRenderMirrorSkewedAngle,
+                alt: 'Rendered mirrored scene viewed from a skewed angle',
+                caption: '2 spheres enclosed in a fully mirror surfaced box depicted from a skewed angle',
+              },
+            ],
+          },
+          mediaBelow: true,
         },
       ],
     },
