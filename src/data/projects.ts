@@ -194,13 +194,12 @@ export const projects: Project[] = [
               heading: 'Performance',
               paragraphs: [
                 'Pipeline staging shortens the critical path by splitting long computations into shorter chunks with registers in between.',
-                'Estimated throughput: ~1.8 million rays per second for a 32×32×32 scene.',
               ],
             },
             {
               heading: 'Area',
               paragraphs: [
-                'Compact encodings are used where possible — a face ID is just 3 bits — and fixed-point arithmetic is used instead of floating point. All RAM is kept external to the ASIC.',
+                'Compact encodings are used where possible and fixed-point arithmetic is used instead of floating point. All RAM is kept external to the ASIC.',
               ],
             },
           ],
@@ -228,7 +227,7 @@ export const projects: Project[] = [
         {
           heading: 'Renders',
           paragraphs: [
-            'After designing the chip we decided to synthesize it onto an FPGA to see how well it could render images. Here’s a peak at what we were able to generate.',
+            'After designing the chip we decided to synthesize it onto an FPGA to see how well it could render images. We were able to render 4k images in less than 60 seconds. Here’s a peak at some of the renders.',
           ],
           media: {
             kind: 'grid',
